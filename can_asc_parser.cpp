@@ -140,7 +140,7 @@ public:
     latitude = ((lat0 + (lat1 * pow(2,8)) + (lat2 * pow(2,16)) + (lat3 * pow(2,24))) * lat_scale ) -210;
     longitude = ((long0 + (long1 * pow(2,8)) + (long2 * pow(2,16)) + (long3 * pow(2,24))) * long_scale ) -210;
 
-    print_message();
+    //print_message();
   }
 
   double get_lat(){
@@ -158,11 +158,122 @@ public:
   
 };
 
+class harvest_pinball_sensor{
+private:
+  int wand_0l, wand_0r, wand_1l, wand_1r;
+
+public:
+  harvest_pinball_sensor(can_message message){
+    parse_data(message);
+  }
+
+  void parse_data(can_message c){
+    int w0, w1, w2, w3, w4, w5;
+
+    w0 = std::stoi(c.get_b2(), nullptr, 16); w1 = std::stoi(c.get_b3(), nullptr, 16);
+    w2 = std::stoi(c.get_b4(), nullptr, 16); w3 = std::stoi(c.get_b5(), nullptr, 16);
+    w4 = std::stoi(c.get_b6(), nullptr, 16); w5 = std::stoi(c.get_b7(), nullptr, 16);
+
+    //speed = (sp0 + (sp1 * pow(2,8))) * kmh_scale * k_to_mi; 
+    //direction = (dir0 + (dir1 * pow(2,8))) * deg_scale;
+    //pitch = ((p0 + (p1 * pow(2,8))) * deg_scale) - 200;
+    //altitude = ((alt0 + (alt1 * pow(2,8))) * m_scale) - 2500;
+
+    print_message();
+  }
+
+  double get_wand_0l(){
+    return wand_0l;
+  }
+
+  double get_wand_0r(){
+    return wand_0r;
+  }
+
+  double get_wand_1l(){
+    return wand_1l;
+  }
+
+  double get_wand_1r(){
+    return wand_1r;
+  }
+
+  double get_wand_0_sum(){
+    return (wand_0l + wand_0r);
+  }
+
+  double get_wand_1_sum(){
+    return (wand_1l + wand_1r);
+  }
+
+  void print_message(){
+    std::cout.precision(dbl::max_digits10);
+    std::cout << "Wand-0: " << get_wand_0_sum() << " Wand-1: " << get_wand_1_sum() << std::endl;
+  }
+  
+};
+
+class gps_lat_long{
+private:
+  double latitude, longitude;
+
+public:
+  gps_lat_long(can_message message){
+    parse_data(message);
+  }
+
+  void parse_data(can_message c){
+    int sp0, sp1, dir0, dir1;
+    int p0, p1, alt0, alt1;
+
+    double deg_scale = 0.0078125;
+    double kmh_scale = 0.00390625;
+    double m_scale = .125;
+    double k_to_mi = 0.621371;
+
+    dir0 = std::stoi(c.get_b0(), nullptr, 16); dir1 = std::stoi(c.get_b1(), nullptr, 16);
+    sp0 = std::stoi(c.get_b2(), nullptr, 16); sp1 = std::stoi(c.get_b3(), nullptr, 16);
+    p0 = std::stoi(c.get_b4(), nullptr, 16); p1 = std::stoi(c.get_b5(), nullptr, 16);
+    alt0 = std::stoi(c.get_b6(), nullptr, 16); alt1 = std::stoi(c.get_b7(), nullptr, 16);
+
+    speed = (sp0 + (sp1 * pow(2,8))) * kmh_scale * k_to_mi; 
+    direction = (dir0 + (dir1 * pow(2,8))) * deg_scale;
+    pitch = ((p0 + (p1 * pow(2,8))) * deg_scale) - 200;
+    altitude = ((alt0 + (alt1 * pow(2,8))) * m_scale) - 2500;
+
+    print_message();
+  }
+
+  double get_speed(){
+    return speed;
+  }
+
+  double get_dir(){
+    return direction;
+  }
+
+  double get_pitch(){
+    return pitch;
+  }
+
+  double get_altitude(){
+    return altitude;
+  }
+
+  void print_message(){
+    std::cout.precision(dbl::max_digits10);
+    std::cout << "Speed: " << std::fixed << speed << " Direction: " << std::fixed << direction << std::endl;
+  }
+  
+};
+  
+
 int main(int argc, char *argv[]){
   std::ifstream i;
   std::string line;
   std::vector<can_message*> mess;
   std::vector<gps_lat_long*> gll;
+  std::vector<gps_speed_dir*> gsd;
   
   //can_message c;
 
@@ -192,8 +303,12 @@ int main(int argc, char *argv[]){
     //mess[x]->print_message();
     //int lat_long_pgn = 65267;
     std::string lat_long_pgn = "FEF3";
+    std::string speed_dir_pgn = "FEE8";
     if (!(mess[x]->get_pgn().compare(lat_long_pgn))){
       gll.push_back(new gps_lat_long(*mess[x]));
+    }
+    if (!(mess[x]->get_pgn().compare(speed_dir_pgn))){
+      gsd.push_back(new gps_speed_dir(*mess[x]));
     }
   }
 
@@ -201,17 +316,17 @@ int main(int argc, char *argv[]){
 
   //std::string t_1 = "4A";
   //std::cout << std::stoi(t_1, nullptr, 16) << " -> " << t_1 << std::endl;
-  std::cout << mess[54]->get_pgn() << std::endl; //line 58
-  std::cout << mess[54]->get_b0() << std::endl;
-  std::cout << mess[54]->get_b1() << std::endl;
-  std::cout << mess[54]->get_b2() << std::endl;
-  std::cout << mess[54]->get_b3() << std::endl;
-  std::cout << mess[54]->get_b4() << std::endl;
-  std::cout << mess[54]->get_b5() << std::endl;
-  std::cout << mess[54]->get_b6() << std::endl;
-  std::cout << mess[54]->get_b7() << std::endl;
+  //std::cout << mess[54]->get_pgn() << std::endl; //line 58
+  //std::cout << mess[54]->get_b0() << std::endl;
+  //std::cout << mess[54]->get_b1() << std::endl;
+  //std::cout << mess[54]->get_b2() << std::endl;
+  //std::cout << mess[54]->get_b3() << std::endl;
+  //std::cout << mess[54]->get_b4() << std::endl;
+  //std::cout << mess[54]->get_b5() << std::endl;
+  //std::cout << mess[54]->get_b6() << std::endl;
+  //std::cout << mess[54]->get_b7() << std::endl;
 
-  gps_lat_long g = gps_lat_long(*mess[54]);
+  //gps_lat_long g = gps_lat_long(*mess[54]);
 
-  std::cout << "Latitude: " << g.get_lat() << " Longitude: " << g.get_long() << " Size: " << (int) gll.size() <<std::endl;
+  //std::cout << "Latitude: " << g.get_lat() << " Longitude: " << g.get_long() << " Size: " << (int) gll.size() <<std::endl;
 }

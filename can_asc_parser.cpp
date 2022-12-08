@@ -169,17 +169,22 @@ public:
 
   void parse_data(can_message c){
     int w0, w1, w2, w3, w4, w5;
+    //int w1_l, w1_r, w4_l, w4_r;
 
     w0 = std::stoi(c.get_b2(), nullptr, 16); w1 = std::stoi(c.get_b3(), nullptr, 16);
     w2 = std::stoi(c.get_b4(), nullptr, 16); w3 = std::stoi(c.get_b5(), nullptr, 16);
     w4 = std::stoi(c.get_b6(), nullptr, 16); w5 = std::stoi(c.get_b7(), nullptr, 16);
 
+    wand_0l = w0 + ((w1 & 15) * pow(2,8));
+    wand_0r = (w2 * pow(2,4)) + ((w1 & 240) >> 4);
+    wand_1l = w3 + ((w4 & 15) * pow(2,8));
+    wand_1r = (w5 * pow(2,4)) + ((w4 & 240) >> 4);
     //speed = (sp0 + (sp1 * pow(2,8))) * kmh_scale * k_to_mi; 
     //direction = (dir0 + (dir1 * pow(2,8))) * deg_scale;
     //pitch = ((p0 + (p1 * pow(2,8))) * deg_scale) - 200;
     //altitude = ((alt0 + (alt1 * pow(2,8))) * m_scale) - 2500;
 
-    print_message();
+    //print_message();
   }
 
   double get_wand_0l(){
@@ -213,12 +218,12 @@ public:
   
 };
 
-class gps_lat_long{
+class gps_speed_dir{
 private:
-  double latitude, longitude;
+  double speed, direction, pitch, altitude;
 
 public:
-  gps_lat_long(can_message message){
+  gps_speed_dir(can_message message){
     parse_data(message);
   }
 
@@ -241,7 +246,7 @@ public:
     pitch = ((p0 + (p1 * pow(2,8))) * deg_scale) - 200;
     altitude = ((alt0 + (alt1 * pow(2,8))) * m_scale) - 2500;
 
-    print_message();
+    //print_message();
   }
 
   double get_speed(){
@@ -274,6 +279,10 @@ int main(int argc, char *argv[]){
   std::vector<can_message*> mess;
   std::vector<gps_lat_long*> gll;
   std::vector<gps_speed_dir*> gsd;
+  std::vector<harvest_pinball_sensor*> p12;
+  std::vector<harvest_pinball_sensor*> p34;
+  std::vector<harvest_pinball_sensor*> p56;
+  std::vector<harvest_pinball_sensor*> p78;
   
   //can_message c;
 
@@ -299,20 +308,42 @@ int main(int argc, char *argv[]){
     }
   }
 
-  for (int x; x < (int) mess.size(); x++){
+  for (int x = 0; x < (int) mess.size(); x++){
     //mess[x]->print_message();
     //int lat_long_pgn = 65267;
     std::string lat_long_pgn = "FEF3";
     std::string speed_dir_pgn = "FEE8";
+    std::string pinball_sensor_pgn = "FF13";
+    std::string row_12 = "01";
+    std::string row_34 = "23";
+    std::string row_56 = "45";
+    std::string row_78 = "67";
     if (!(mess[x]->get_pgn().compare(lat_long_pgn))){
       gll.push_back(new gps_lat_long(*mess[x]));
     }
     if (!(mess[x]->get_pgn().compare(speed_dir_pgn))){
       gsd.push_back(new gps_speed_dir(*mess[x]));
     }
+    if (!(mess[x]->get_pgn().compare(pinball_sensor_pgn))){
+      if (!(mess[x]->get_b1().compare(row_12))){
+	p12.push_back(new harvest_pinball_sensor(*mess[x]));
+      }
+      if (!(mess[x]->get_b1().compare(row_34))){
+	p34.push_back(new harvest_pinball_sensor(*mess[x]));
+      }
+      if (!(mess[x]->get_b1().compare(row_56))){
+	p56.push_back(new harvest_pinball_sensor(*mess[x]));
+      }
+      if (!(mess[x]->get_b1().compare(row_78))){
+	p78.push_back(new harvest_pinball_sensor(*mess[x]));
+      }
+    }
+    
   }
 
-  
+  for (int x = 0; x < (int) p56.size(); x++){
+    p56[x]->print_message();
+  }
 
   //std::string t_1 = "4A";
   //std::cout << std::stoi(t_1, nullptr, 16) << " -> " << t_1 << std::endl;
@@ -329,4 +360,17 @@ int main(int argc, char *argv[]){
   //gps_lat_long g = gps_lat_long(*mess[54]);
 
   //std::cout << "Latitude: " << g.get_lat() << " Longitude: " << g.get_long() << " Size: " << (int) gll.size() <<std::endl;
+
+  std::cout << (int) p12.size() << std::endl;
+  std::cout << (int) p34.size() << std::endl;
+  std::cout << (int) p56.size() << std::endl;
+  std::cout << (int) p78.size() << std::endl;
+
+  gll.clear();
+  gsd.clear();
+  p12.clear();
+  p34.clear();
+  p56.clear();
+  p78.clear();
+  
 }

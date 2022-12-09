@@ -324,7 +324,8 @@ int main(int argc, char *argv[]){
 
   int line_count = 0;
 
-  std::string path_gen = "/home/student/Desktop/ComS327/project2";
+  //std::string path_gen = "/home/student/Desktop/ComS327/project2";
+  std::string path_gen = ".";
   std::string file_name = "Collection_1_2022-10-29_15-12-42-279297_Partition_0.asc";
   
   i.open(path_gen + "/" + file_name);   
@@ -398,29 +399,29 @@ int main(int argc, char *argv[]){
 
   //std::cout << "Latitude: " << g.get_lat() << " Longitude: " << g.get_long() << " Size: " << (int) gll.size() <<std::endl;
 
-  std::cout << (int) p12.size() << std::endl;
-  std::cout << (int) p34.size() << std::endl;
-  std::cout << (int) p56.size() << std::endl;
-  std::cout << (int) p78.size() << std::endl;
-  std::cout << (int) gll.size() << std::endl;
+  //std::cout << (int) p12.size() << std::endl;
+  //std::cout << (int) p34.size() << std::endl;
+  //std::cout << (int) p56.size() << std::endl;
+  //std::cout << (int) p78.size() << std::endl;
+  //std::cout << (int) gll.size() << std::endl;
 
 
   std::string out_loc = "./";
 
   std::string out_dir = out_loc + file_name.substr(0,(file_name.size()-4));
-  std::cout << out_dir << std::endl;
+  //std::cout << out_dir << std::endl;
 
   if (mkdir(out_dir.c_str(),0777) == 0){
-    std::cout << "SUCCESS AGAIN"  << std::endl;
-    std::cout << (int) gll.size()  << std::endl;
+    //std::cout << "SUCCESS AGAIN"  << std::endl;
+    //std::cout << (int) gll.size()  << std::endl;
     //if lat long data
     if((int) gll.size() > 0){
       //write file
       std::string out_lat_long = "gps_lat_long.csv";
-      std::cout << out_lat_long << std::endl;
+      //std::cout << out_lat_long << std::endl;
       std::ofstream gll_file(out_dir + "/" + out_lat_long);
       if(gll_file.is_open()){
-	std::cout << "GOT IT" << std::endl;
+	//std::cout << "GOT IT" << std::endl;
       }
       gll_file << "time,lat,long" << std::endl;
       for (int j = 0; j < (int) gll.size(); j++){
@@ -433,10 +434,10 @@ int main(int argc, char *argv[]){
     if((int) gsd.size() > 0){
       //write file
       std::string out_speed_dir = "gps_speed_dir.csv";
-      std::cout << out_speed_dir << std::endl;
+      //std::cout << out_speed_dir << std::endl;
       std::ofstream gsd_file(out_dir + "/" + out_speed_dir);
       if(gsd_file.is_open()){
-	std::cout << "GOT IT" << std::endl;
+	//std::cout << "GOT IT" << std::endl;
       }
       gsd_file << "time,speed,direction,pitch,altitude" << std::endl;
       for (int j = 0; j < (int) gsd.size(); j++){
@@ -449,10 +450,10 @@ int main(int argc, char *argv[]){
     if((int) p12.size() > 0){
       //write file
       std::string out_pinball_12 = "harvest_pinball_row_1_2.csv";
-      std::cout << out_pinball_12 << std::endl;
+      //std::cout << out_pinball_12 << std::endl;
       std::ofstream p12_file(out_dir + "/" + out_pinball_12);
       if(p12_file.is_open()){
-	std::cout << "GOT IT" << std::endl;
+	//std::cout << "GOT IT" << std::endl;
       }
       p12_file << "time, Row 1 - Left [counts],Row 1 - Right [counts],Row 1 - Sum [counts],Row 2 - Left [counts],Row 2 - Right [counts],Row 2 - Sum [counts]" << std::endl;
       for (int j = 0; j < (int) p12.size(); j++){
@@ -464,10 +465,10 @@ int main(int argc, char *argv[]){
     if((int) p34.size() > 0){
       //write file
       std::string out_pinball_34 = "harvest_pinball_row_3_4.csv";
-      std::cout << out_pinball_34 << std::endl;
+      //std::cout << out_pinball_34 << std::endl;
       std::ofstream p34_file(out_dir + "/" + out_pinball_34);
       if(p34_file.is_open()){
-	std::cout << "GOT IT" << std::endl;
+	//std::cout << "GOT IT" << std::endl;
       }
       p34_file << "time, Row 3 - Left [counts],Row 3 - Right [counts],Row 3 - Sum [counts],Row 4 - Left [counts],Row 4 - Right [counts],Row 4 - Sum [counts]" << std::endl;
       for (int j = 0; j < (int) p34.size(); j++){
@@ -479,10 +480,10 @@ int main(int argc, char *argv[]){
     if((int) p56.size() > 0){
       //write file
       std::string out_pinball_56 = "harvest_pinball_row_5_6.csv";
-      std::cout << out_pinball_56 << std::endl;
+      //std::cout << out_pinball_56 << std::endl;
       std::ofstream p56_file(out_dir + "/" + out_pinball_56);
       if(p56_file.is_open()){
-	std::cout << "GOT IT" << std::endl;
+	//std::cout << "GOT IT" << std::endl;
       }
       p56_file << "time, Row 5 - Left [counts],Row 5 - Right [counts],Row 5 - Sum [counts],Row 6 - Left [counts],Row 6 - Right [counts],Row 6 - Sum [counts]" << std::endl;
       for (int j = 0; j < (int) p56.size(); j++){
